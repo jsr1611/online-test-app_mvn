@@ -1,0 +1,37 @@
+15000.0 UZS
+Test 001
+Question 001. What is the capital of Uzbekistan? [5]
+Answer 1: Tashkent
+y
+Answer 2: Urgench
+n
+Answer 3: Samarkand
+n
+Question 002. What is the birthplace of Amir Temur? [5]
+Answer 1: Samarkand
+n
+Answer 2: Urgench
+n
+Answer 3: Shakhrisabz
+y
+Question 003. What is the other meaning of uzbek word 'fuqaro'? [5]
+Answer 1: foreigner
+n
+Answer 2: resident
+n
+Answer 3: a poor man
+y
+Question 004. What was the name of the 2rd Islamic caliph? [5]
+Answer 1: Ali ibn Tolib (ra)
+n
+Answer 2: Umar (ra)
+y
+Answer 3: Usmon (ra)
+n
+Question 005. What is the biggest viloyat in Uzbekistan? [5]
+Answer 1: Navoi
+y
+Answer 2: Karakalpakstan
+n
+Answer 3: Tashkent
+n
