@@ -1,8 +1,10 @@
 package models;
 
 import enums.Currency;
+import realization.main;
 
 import java.util.List;
+import java.util.Map;
 
 public class Subject {
     private Long id;
@@ -11,6 +13,7 @@ public class Subject {
     private Integer totalPoints; // scores
     private Double price;
     private Currency currency;
+    private Map<Currency, Double> currencies;
 
     public Subject(Long id, String name, List<models.Test> testList, Integer totalPoints, Double price, Currency currency) {
         this.id = id;
@@ -19,6 +22,8 @@ public class Subject {
         this.totalPoints = totalPoints;
         this.price = price;
         this.currency = currency;
+        currencies = main.getCurrencyRates(currency);
+
     }
 
     public Long getId() {

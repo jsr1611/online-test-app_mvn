@@ -1,5 +1,6 @@
 package realization;
 
+import com.google.gson.Gson;
 import enums.Currency;
 import enums.PaymentType;
 import enums.Role;
@@ -12,9 +13,10 @@ import services.serviceImpl.testServiceImpl;
 import services.subjectService;
 import services.testService;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.time.LocalDate;
@@ -85,10 +87,13 @@ public class main {
         users.add(user1);
 
 
+
+
         String filesFolderPath = "resources/";
         readFiles(filesFolderPath);
 
         boolean exitApp = false;
+
         while (!exitApp){
             try {
                 exitApp = mainMenu();
@@ -247,9 +252,8 @@ public class main {
                     subject.setCurrency(Currency.UZS);
                 }else if(pricetag[1].equals(Currency.USD.toString())){
                     subject.setCurrency(Currency.USD);
-                }else if(pricetag[1].equals(Currency.KRW.toString())){
-                    subject.setCurrency(Currency.KRW);
-                }else if(pricetag[1].equals(Currency.RUB.toString())){
+                }
+                else if(pricetag[1].equals(Currency.RUB.toString())){
                     subject.setCurrency(Currency.RUB);
                 }else {
                     System.out.println("Wrong currency tag! Default currency tag UZS will be applied.");
@@ -795,4 +799,45 @@ public class main {
                 String.format("%1$-25s","Name (Role)"));
     }
 
+    public static Map<Currency, Double> getCurrencyRates(Currency currency) {
+        List<Double> currencies = new ArrayList<>();
+        Map<Currency, Double> currencyMap = new LinkedHashMap<>();
+        String API_URL = "https://cbu.uz/oz/arkhiv-kursov-valyut/json/";
+        try {
+            URL url = new URL(API_URL);
+
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            InputStream inputStream = connection.getInputStream();
+            BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+            Gson gson = new Gson();
+            models.Currency[] currencyObjs = gson.fromJson(reader, models.Currency[].class);
+            List<Currency> curToGet = new ArrayList<>();
+            for (Currency value : Currency.values()) {
+                if(!currency.equals(value)){
+                    curToGet.add(value);
+                }
+            }
+            int counter = curToGet.size();
+            for (models.Currency currencyObj : currencyObjs) {
+                for (Currency currencyToGet : curToGet) {
+                    if(currencyObj.getCcy().equals(currencyToGet.toString())){
+                        counter--;
+                        currencyMap.put(currencyToGet, Double.parseDouble(currencyObj.getRate()));
+                    }
+                }
+                if(counter == 0){
+                    //System.out.println("Finished fetching currency rates.");
+                    break;
+                }
+            }
+            System.out.println();
+            System.out.println("Currency rates were fetched successfully!");
+            System.out.println();
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return currencyMap;
+    }
 }
