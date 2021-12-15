@@ -19,6 +19,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.sql.*;
 import java.time.LocalDate;
 import java.util.*;
 
@@ -35,7 +36,9 @@ public class main {
     public static final subjectService subjectService = new subjectServiceImpl();
     public static final testService testService = new testServiceImpl();
     public static final paymentService paymentService = new paymentServiceImpl();
-
+    public static final String db_url = "jdbc:postgresql://localhost/online-test";
+    public static final String db_user = "postgres";
+    public static final String db_password = "1611";
 
     public static void main(String[] args) {
         System.out.println("Online Test");
@@ -64,6 +67,11 @@ public class main {
                 "root",
                 Role.ADMIN,
                 adminAccount);
+
+        List<Account> accounts = new ArrayList<>();
+        accounts.add(adminAccount);
+        accounts.add(userAccount);
+
         User user1 = new User(101L,
                 "Jumanazar",
                 "Saidov",
@@ -86,6 +94,24 @@ public class main {
         users.add(admin1);
         users.add(user1);
 
+        String tableName = "account";
+        for (Account account : accounts) {
+            boolean exists = accountNumberExists(account.getAccountNumber(), tableName);
+            boolean status = false;
+            if(!exists){
+                status = InsertIntoDB(account);
+                if(status){
+                    System.out.println("Account " + account.getAccountNumber() + " was added to db.");
+                }
+                else {
+                    System.out.println("Account (" + account.getAccountNumber() +") insert operation failed.");
+                }
+            }
+        }
+
+
+        scanner = new Scanner(System.in);
+        String something = scanner.next();
 
 
 
@@ -104,6 +130,91 @@ public class main {
 
         }
     }
+
+    /**
+     * Check if account number exists in the given table
+     * @param accountNumber account number
+     * @param tableName table name
+     * @return true if exists, else false
+     */
+    private static boolean accountNumberExists(Long accountNumber, String tableName) {
+        boolean result = false;
+        String SELECT_SQL = "select count(*) as count from " + tableName +" where account_number = " + accountNumber;
+        try (Connection connection = DriverManager.getConnection(db_url, db_user, db_password);
+             // Step 2:Create a statement using connection object
+             PreparedStatement preparedStatement = connection.prepareStatement(SELECT_SQL);) {
+            //System.out.println(preparedStatement);
+            // Step 3: Execute the query or update query
+            ResultSet rs = preparedStatement.executeQuery();
+
+            // Step 4: Process the ResultSet object.
+            while (rs.next()) {
+                int count = rs.getInt("count");
+                if(count == 1){
+                    result = true;
+                    break;
+                }
+            }
+        } catch (SQLException e) {
+            printSQLException(e);
+        }
+        return result;
+    }
+
+    private static boolean InsertIntoDB(Account adminAccount) {
+
+        String INSERT_ACCOUNT_SQL = "INSERT INTO account" +
+                "  (account_number, password, balance, currency, is_active) VALUES " +
+                String.format("(%d, %s, %.3f, '%s', %b);",
+                        adminAccount.getAccountNumber(),
+                        adminAccount.getPassword().toString(),
+                        adminAccount.getBalance(),
+                        adminAccount.getCurrency(),
+                        adminAccount.isActive());
+
+        try (Connection connection = DriverManager.getConnection(db_url, db_user, db_password);
+
+             // Step 2:Create a statement using connection object
+             //Statement statement = connection.createStatement();) {
+             PreparedStatement preparedStatement = connection.prepareStatement(INSERT_ACCOUNT_SQL)){
+
+            // Step 3: Execute the query or update query
+            preparedStatement.executeUpdate();
+            return true;
+        } catch (SQLException e) {
+
+            // print SQL exception information
+            printSQLException(e);
+        }
+
+        return false;
+    }
+
+    public static void printSQLException(SQLException ex) {
+        for (Throwable e: ex) {
+            if (e instanceof SQLException) {
+                e.printStackTrace(System.err);
+                System.err.println("SQLState: " + ((SQLException) e).getSQLState());
+                System.err.println("Error Code: " + ((SQLException) e).getErrorCode());
+                System.err.println("Message: " + e.getMessage());
+                Throwable t = ex.getCause();
+                while (t != null) {
+                    System.out.println("Cause: " + t);
+                    t = t.getCause();
+                }
+            }
+        }
+    }
+
+
+
+
+
+
+
+
+
+
 
     private static void readFiles(String filesFolderPath) {
         List<String> paths = new ArrayList<>();

@@ -176,9 +176,6 @@ public class paymentServiceImpl implements paymentService {
                     currency = Currency.USD;
                     break;
                 case 3:
-                    currency = Currency.KRW;
-                    break;
-                case 4:
                     currency = Currency.RUB;
                     break;
                 default:

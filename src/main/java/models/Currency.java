@@ -8,17 +8,14 @@ public class Currency {
      * <id> – Тартиб рақами;
      */
     private Long id;
-
     /**
      * <Code> – Валютанинг сонли коди. Масалан: 840, 978, 643 ва бошқалар;
      */
     private String Code;
-
     /**
      * <Ccy> – Валютанинг рамзли коди (альфа-3). Масалан: USD, EUR, RUB ва бошқалар;
      */
     private String Ccy;
-
     /**
      * <CcyNm_RU> – Валютанинг рус тилидаги номи;
      */
